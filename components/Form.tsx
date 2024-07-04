@@ -27,9 +27,12 @@ const Form: React.FC<FormProps> = ({ placeholder, isComment, postId }) => {
   const onSubmit = useCallback(async () => {
     try {
       setIsLoading(true);
-      await axios.post("/api/posts", { body });
 
-      toast.success("Post created successfully");
+      const url = isComment ? `/api/comments?postId=${postId}` : "/api/posts";
+
+      await axios.post(url, { body });
+      const successMessage = isComment ? "Comment created successfully" : "Post created successfully";
+      toast.success(successMessage);
       setBody("");
       mutatePosts();
     } catch (error) {
@@ -37,7 +40,7 @@ const Form: React.FC<FormProps> = ({ placeholder, isComment, postId }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [body, mutatePosts]);
+  }, [body, mutatePosts,isComment,postId]);
 
   return (
     <div className="border-b-[1px] border-neutral-800 px-5 py-2">
@@ -76,10 +79,13 @@ const Form: React.FC<FormProps> = ({ placeholder, isComment, postId }) => {
                transition
                "
             />
-            <div
-            className="flex flex-row justify-end mt-4"
-            >
-              <Button label="Post" secondary disabled={isLoading || !body} onClick={onSubmit}/>
+            <div className="flex flex-row justify-end mt-4">
+              <Button
+                label="Post"
+                secondary
+                disabled={isLoading || !body}
+                onClick={onSubmit}
+              />
             </div>
           </div>
         </div>
