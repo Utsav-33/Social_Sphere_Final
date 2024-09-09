@@ -73,6 +73,7 @@ const LoginModal = () => {
         </span>
       </p>
     </div>
+    
   );
   return (
     <div>
