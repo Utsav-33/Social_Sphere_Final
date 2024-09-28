@@ -7,6 +7,7 @@ import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 import Button from "./Button";
 import Avatar from "./Avatar";
+import ImageUpload from "./ImageUpload"; // Import the ImageUpload component
 
 interface FormProps {
   placeholder: string;
@@ -22,6 +23,7 @@ const Form: React.FC<FormProps> = ({ placeholder, isComment, postId }) => {
   const { mutate: mutatePosts } = usePosts();
 
   const [body, setBody] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null); // State for image URL
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = useCallback(async () => {
@@ -30,17 +32,19 @@ const Form: React.FC<FormProps> = ({ placeholder, isComment, postId }) => {
 
       const url = isComment ? `/api/comments?postId=${postId}` : "/api/posts";
 
-      await axios.post(url, { body });
+      // Include both body and imageUrl in the request
+      await axios.post(url, { body, imageUrl });
       const successMessage = isComment ? "Comment created successfully" : "Post created successfully";
       toast.success(successMessage);
       setBody("");
+      setImageUrl(null); // Reset image after submission
       mutatePosts();
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
     }
-  }, [body, mutatePosts,isComment,postId]);
+  }, [body, imageUrl, mutatePosts, isComment, postId]);
 
   return (
     <div className="border-b-[1px] border-neutral-800 px-5 py-2">
@@ -55,35 +59,46 @@ const Form: React.FC<FormProps> = ({ placeholder, isComment, postId }) => {
               onChange={(e) => setBody(e.target.value)}
               value={body}
               className="
-            disabled: opacity-80
-            peer 
-            resize-none
-            mt-3
-            w-full
-            bg-black
-            ring-0
-            outline-none
-            text-[20px]
-            placeholder-neutral-500
-            text-white
-            "
+                disabled:opacity-80
+                peer
+                resize-none
+                mt-3
+                w-full
+                bg-black
+                ring-0
+                outline-none
+                text-[20px]
+                placeholder-neutral-500
+                text-white
+              "
               placeholder={placeholder}
-            ></textarea>
+            />
             <hr
               className="
-               opacity-0
-               peer-focus: opacity-100
-               h-[1px]
-               w-full
-               border-neutral-800
-               transition
-               "
+                opacity-0
+                peer-focus:opacity-100
+                h-[1px]
+                w-full
+                border-neutral-800
+                transition
+              "
             />
+            {/* Conditionally render ImageUpload only if it's not a comment */}
+            {!isComment && (
+              <div className="my-4">
+                <ImageUpload 
+                  onChange={(base64) => setImageUrl(base64)} 
+                  label="" 
+                  value={imageUrl || ""} 
+                />
+              </div>
+            )}
+
             <div className="flex flex-row justify-end mt-4">
               <Button
                 label="Post"
                 secondary
-                disabled={isLoading || !body}
+                disabled={isLoading || (!body && !imageUrl)} // Allow either body or imageUrl
                 onClick={onSubmit}
               />
             </div>

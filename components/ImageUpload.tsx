@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { FaRegImages } from "react-icons/fa";
 
 interface ImageUploadProps {
   onChange: (base64: string) => void;
@@ -16,6 +17,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   disabled,
 }) => {
   const [base64, setBase64] = useState(value);
+  const [fileUploaded, setFileUploaded] = useState(false); // State to track if a file is uploaded
 
   const handleChange = useCallback(
     (base64: string) => {
@@ -32,6 +34,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       reader.onload = (event: any) => {
         setBase64(event.target.result);
         handleChange(event.target.result);
+        setFileUploaded(true); // Mark that a file has been uploaded
       };
       reader.readAsDataURL(file);
     },
@@ -49,28 +52,30 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   });
 
   return (
-    <div
-      {...getRootProps({
-        className:
-          "w-full p-4 text-white text-center border-2 border-dotted rounded-md border-neutral-700",
-      })}
-    >
-      <input {...getInputProps()} />{
-        base64 ? (
-          <div className="flex justify-center items-center">
-          <Image 
-          src={base64}
-          height={100}
-          width={100}
-          alt="Uploaded Image" />
-
+    <div className="flex items-center">
+      <label
+        {...getRootProps()}
+        className="cursor-pointer"
+        onClick={(e) => {
+          if (fileUploaded) {
+            e.preventDefault(); // Prevent default behavior if a file has been uploaded
+          }
+        }}
+      >
+        <FaRegImages size={24} className="text-white" />
+        <input {...getInputProps()} style={{ display: 'none' }} />
+        {base64 && (
+          <div className="ml-2">
+            <Image 
+              src={base64} 
+              height={50} 
+              width={50} 
+              alt="Uploaded Image" 
+            />
           </div>
-        ) : (
-          <p className="text-white">{label}</p>
-        )
-
-}
-
+        )}
+      </label>
+      <span className="text-white ml-2">{label}</span>
     </div>
   );
 };
