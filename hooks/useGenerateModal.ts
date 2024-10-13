@@ -1,15 +1,15 @@
-import create from 'zustand';
+import { create } from 'zustand';
 
-interface ModalState {
+interface GenerateModalState {
   isOpen: boolean;
-  openModal: () => void;
-  closeModal: () => void;
+  onOpen: () => void;
+  onClose: () => void;
 }
 
-const useGenerateModal = create<ModalState>((set) => ({
+const useGenerateModal = create<GenerateModalState>((set) => ({
   isOpen: false,
-  openModal: () => set({ isOpen: true }),
-  closeModal: () => set({ isOpen: false }),
+  onOpen: () => set({ isOpen: true }),
+  onClose: () => set({ isOpen: false }),
 }));
 
 export default useGenerateModal;

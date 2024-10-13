@@ -1,55 +1,63 @@
-// GenerateModal.tsx
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useClipboard } from 'use-clipboard-copy';
-import toast from 'react-hot-toast';
-import Modal from '../Modal';
-import Button from '../Button';
-import useGenerateModal from '@/hooks/useGenerateModal';
+import { useState } from "react";
+import Modal from "@/components/Modal";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { toast } from "react-hot-toast";
 
-const GenerateModal: React.FC = () => {
-  const { isOpen, closeModal } = useGenerateModal();
-  const [prompt, setPrompt] = useState('');
-  const [generatedContent, setGeneratedContent] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const clipboard = useClipboard();
+interface GenerateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onGenerate: (content: string) => void; // Prop to pass generated content
+}
 
-  const handleSubmit = async () => {
-    if (!prompt) return;
+const GenerateModal: React.FC<GenerateModalProps> = ({ isOpen, onClose, onGenerate }) => {
+  const [prompt, setPrompt] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-    setIsLoading(true);
+  const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+  if (!apiKey) throw new Error("API key is not defined.");
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      toast.error("Please enter a prompt.");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const response = await axios.post('/api/openai', { prompt });
-      setGeneratedContent(response.data.content);
+      const result = await model.generateContent(prompt);
+      const content = await result.response.text();
+      onGenerate(content); // Pass the generated content back to the Form component
+      toast.success("AI generated content successfully!");
+      onClose(); // Close the modal after generating content
     } catch (error) {
-      toast.error('Failed to generate content');
+      toast.error("Failed to generate content.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={closeModal}
-      onSubmit={handleSubmit}
-      title="Generate Content"
-      actionLabel="Generate"
-      disabled={isLoading}
+      onClose={onClose}
+      title="Generate AI Content"
+      actionLabel={loading ? "Generating..." : "Generate"}
+      disabled={loading}
+      onSubmit={handleGenerate}
       body={
         <div>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Enter prompt"
-            className="w-full h-32 p-2 text-black"
+            placeholder="Enter your prompt here..."
+            className="w-full p-2 border border-zinc-700 rounded text-white bg-zinc-900 resize-none"
+            rows={3}
+            
           />
-          {generatedContent && (
-            <div className="mt-4">
-              <p className="text-white">{generatedContent}</p>
-              <Button label="Copy Text" onClick={() => clipboard.copy(generatedContent)} />
-            </div>
-          )}
         </div>
       }
     />

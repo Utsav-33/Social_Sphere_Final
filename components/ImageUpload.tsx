@@ -1,12 +1,13 @@
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { FaRegImages } from "react-icons/fa";
+import { MdDelete } from "react-icons/md"; // Import a delete icon
 
 interface ImageUploadProps {
   onChange: (base64: string) => void;
   label: string;
-  value?: string;
+  value?: string; // Base64 string of the uploaded image
   disabled?: boolean;
 }
 
@@ -16,7 +17,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   value,
   disabled,
 }) => {
-  const [base64, setBase64] = useState(value);
+  const [base64, setBase64] = useState<string | undefined>(value); // State for the base64 image
   const [fileUploaded, setFileUploaded] = useState(false); // State to track if a file is uploaded
 
   const handleChange = useCallback(
@@ -51,6 +52,18 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     },
   });
 
+  // Effect to handle changes to the value prop
+  useEffect(() => {
+    setBase64(value); // Reset base64 state when value changes
+    setFileUploaded(!!value); // Set fileUploaded based on value
+  }, [value]);
+
+  const handleRemoveImage = () => {
+    setBase64(undefined); // Clear the base64 state
+    handleChange(""); // Notify the parent component
+    setFileUploaded(false); // Reset the file uploaded state
+  };
+
   return (
     <div className="flex items-center">
       <label
@@ -65,13 +78,20 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         <FaRegImages size={24} className="text-white" />
         <input {...getInputProps()} style={{ display: 'none' }} />
         {base64 && (
-          <div className="ml-2">
+          <div className="relative ml-2">
             <Image 
               src={base64} 
               height={50} 
               width={50} 
               alt="Uploaded Image" 
             />
+            <button
+              onClick={handleRemoveImage}
+              className="absolute top-0 right-0 bg-slate-600 rounded-full p-1 text-white"
+              title="Remove Image"
+            >
+              <MdDelete size={20} />
+            </button>
           </div>
         )}
       </label>
