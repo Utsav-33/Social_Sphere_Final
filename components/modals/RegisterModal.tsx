@@ -9,7 +9,7 @@ import { signIn } from "next-auth/react";
 
 const RegisterModal = () => {
   const loginModal = useLoginModal();
-  const registerModal = useRegisterModal(); 
+  const registerModal = useRegisterModal();
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -22,11 +22,16 @@ const RegisterModal = () => {
       return;
     }
 
-    registerModal.onClose(); 
+    registerModal.onClose();
     loginModal.onOpen();
-  }, [isLoading, registerModal, loginModal]); 
+  }, [isLoading, registerModal, loginModal]);
 
   const onSubmit = useCallback(async () => {
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return; // Stop the submission if validation fails
+    }
+
     try {
       setIsLoading(true);
 
@@ -44,14 +49,14 @@ const RegisterModal = () => {
         password,
       });
 
-      registerModal.onClose(); // Fixed typo here
+      registerModal.onClose();
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
     }
-  }, [email, name, username, password, registerModal]); // Added missing dependencies
+  }, [email, name, username, password, registerModal]);
 
   const bodyContent = (
     <div className="flex flex-col gap-4">
@@ -77,7 +82,7 @@ const RegisterModal = () => {
         placeholder="Password"
         onChange={(e) => setPassword(e.target.value)}
         value={password}
-        type="password" 
+        type="password"
         disabled={isLoading}
       />
     </div>
@@ -103,9 +108,9 @@ const RegisterModal = () => {
       <Modal
         actionLabel="Sign Up"
         disabled={isLoading}
-        isOpen={registerModal.isOpen} // Fixed typo here
+        isOpen={registerModal.isOpen}
         title="Create an account"
-        onClose={registerModal.onClose} // Fixed typo here
+        onClose={registerModal.onClose}
         onSubmit={onSubmit}
         body={bodyContent}
         footer={footerSection}

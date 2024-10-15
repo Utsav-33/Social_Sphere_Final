@@ -44,7 +44,7 @@ const GenerateModal: React.FC<GenerateModalProps> = ({ isOpen, onClose, onGenera
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Generate AI Content"
+      title="Generate Content Using AI 🪄"
       actionLabel={loading ? "Generating..." : "Generate"}
       disabled={loading}
       onSubmit={handleGenerate}

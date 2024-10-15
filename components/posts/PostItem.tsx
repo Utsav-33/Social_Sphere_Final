@@ -61,8 +61,10 @@ const PostItem: React.FC<PostItemProps> = ({ data, userId }) => {
         hover:bg-neutral-900 
         transition"
     >
-      <div className="flex flex-row items-start gap-2 ">
-        <Avatar userId={data.user.id} />
+      <div className="flex flex-row items-start gap-2">
+      <div className="w-12 h-12">
+          <Avatar userId={data.user.id} />
+      </div>
         <div>
           <div className="flex flex-row items-center gap-2 ">
             <p

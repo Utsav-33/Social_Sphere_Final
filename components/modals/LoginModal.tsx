@@ -2,16 +2,18 @@ import useLoginModal from "@/hooks/useLoginModal";
 import { useCallback, useState } from "react";
 import Input from "../Input";
 import Modal from "../Modal";
+import { useRouter } from "next/router";
 import useRegisterModal from "@/hooks/useRegisterModal";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 
 const LoginModal = () => {
   const loginModal = useLoginModal();
-  const regsiterModal = useRegisterModal();
+  const registerModal = useRegisterModal();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const onToggle = useCallback(() => {
     if (isLoading) {
@@ -19,28 +21,39 @@ const LoginModal = () => {
     }
 
     loginModal.onClose();
-    regsiterModal.onOpen();
-  }, [isLoading, regsiterModal, loginModal]);
+    registerModal.onOpen();
+  }, [isLoading, registerModal, loginModal]);
 
   const onSubmit = useCallback(async () => {
     try {
       setIsLoading(true);
 
-      await signIn("credentials", {
+      // Await the result of the signIn call
+      const result = await signIn("credentials", {
+        redirect: false, // prevent redirect on failure
         email,
         password,
       });
 
-      toast.success("Logged in successfully");
+      if (!email || !password) {
+        toast.error("Email and password must not be empty");
+        return;
+      }
 
-      loginModal.onClose();
+      if (result?.error) {
+        toast.error("Invalid email or password");
+      } else {
+        toast.success("Logged in successfully");
+        router.reload();
+        loginModal.onClose();
+      }
     } catch (error) {
       console.log(error);
-      toast.error("Wrong Credentials");
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }, [loginModal,email,password]);
+  }, [loginModal, email, password]);
 
   const bodyContent = (
     <div className="flex flex-col gap-4">
@@ -73,8 +86,8 @@ const LoginModal = () => {
         </span>
       </p>
     </div>
-    
   );
+
   return (
     <div>
       <Modal
