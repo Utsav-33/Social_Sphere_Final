@@ -26,7 +26,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <EditModal />
       <LoginModal />
       <RegisterModal />
-      <GenerateModal/>
+      {/* <GenerateModal/> */}
       <Layout>
         <Component {...pageProps} />
       </Layout>
