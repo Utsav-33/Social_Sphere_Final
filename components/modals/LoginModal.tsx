@@ -85,7 +85,7 @@ const LoginModal = () => {
           Create an account.
         </span>
       </p>
-    </div>
+</div>
   );
 
   return (

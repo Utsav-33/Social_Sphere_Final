@@ -27,9 +27,14 @@ const RegisterModal = () => {
   }, [isLoading, registerModal, loginModal]);
 
   const onSubmit = useCallback(async () => {
+    if (!email || !name || !username || !password) {
+      toast.error("Please fill out all fields");
+      return;
+    }
+
     if (password.length < 6) {
       toast.error("Password must be at least 6 characters");
-      return; // Stop the submission if validation fails
+      return;
     }
 
     try {
@@ -50,9 +55,15 @@ const RegisterModal = () => {
       });
 
       registerModal.onClose();
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        const errorMessage =
+          error.response.data.message || "Email or username already exists";
+        toast.error(errorMessage);
+      } else {
+        console.log(error);
+        toast.error("Something went wrong");
+      }
     } finally {
       setIsLoading(false);
     }

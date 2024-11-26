@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 interface GenerateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onGenerate: (content: string) => void; // Prop to pass generated content
+  onGenerate: (content: string) =>  void; // Prop to pass generated content
 }
 
 const GenerateModal: React.FC<GenerateModalProps> = ({ isOpen, onClose, onGenerate }) => {

@@ -10,6 +10,7 @@ import Avatar from "./Avatar";
 import ImageUpload from "./ImageUpload";
 import GenerateModal from "@/components/modals/GenerateModal"; 
 import useGenerateModal from "@/hooks/useGenerateModal"; 
+import usePost from "@/hooks/usePost";
 
 interface FormProps {
   placeholder: string;
@@ -24,6 +25,7 @@ const Form: React.FC<FormProps> = ({ placeholder, isComment, postId }) => {
 
   const { data: currentUser } = useCurrentUser();
   const { mutate: mutatePosts } = usePosts();
+  const {mutate : mutatePost} = usePost(postId as string);
 
   const [body, setBody] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null); 
@@ -40,12 +42,13 @@ const Form: React.FC<FormProps> = ({ placeholder, isComment, postId }) => {
       setBody("");
       setImageUrl(null); // Reset imageUrl here
       mutatePosts();
+      mutatePost();
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
     }
-  }, [body, imageUrl, mutatePosts, isComment, postId]);
+  }, [body, imageUrl, mutatePosts, isComment, postId,mutatePost]);
 
   const handleGeneratedContent = (content: string) => {
     setBody(content); 
